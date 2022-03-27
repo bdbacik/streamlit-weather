@@ -12,12 +12,12 @@ st.title('Wedding Day Weather')
 #load data
 @st.cache(allow_output_mutation=True)
 def load_data():
-    dly1 = pd.read_csv('/Users/Brian/Desktop/weather-app/data/dly1.csv')
-    dly2 = pd.read_csv('/Users/Brian/Desktop/weather-app/data/dly2.csv')
-    dly3 = pd.read_csv('/Users/Brian/Desktop/weather-app/data/dly3.csv')
+    dly1 = pd.read_csv('./data/dly1.csv')
+    dly2 = pd.read_csv('./data/dly2.csv')
+    dly3 = pd.read_csv('./data/dly3.csv')
     dly = dly1.append(dly2).append(dly3)
     dly = dly.iloc[:,2:]
-    inventory = pd.read_csv('/Users/Brian/Desktop/weather-app/data/dly_combined_inventory.csv')
+    inventory = pd.read_csv('./data/dly_combined_inventory.csv')
     return dly, inventory
 
 dly, inventory = load_data()
@@ -66,6 +66,7 @@ def show_score(local_dly, place, best_day_index,low_temp,high_temp):
 
     #display line chart
     st.subheader('Weather Score')
+    st.write('The weather score is the probability that the high temp will be in your desired range and that there will be no precipitation on this date')
     local_plot = local_dly[local_dly['day']==1]
     fig = plt.figure()
     sns.lineplot(x=local_plot['mm-dd'],y=local_plot['prob_score']*100)
