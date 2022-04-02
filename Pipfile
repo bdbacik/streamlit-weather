@@ -10,6 +10,9 @@ applaunchservices = "==0.2.1"
 scipy = "*"
 pgeocode = "*"
 seaborn = "*"
+pandas = "*"
+numpy = "*"
+matplotlib = "*"
 
 [dev-packages]
 
