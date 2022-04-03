@@ -6,6 +6,8 @@ import pgeocode
 from scipy.stats import norm
 import seaborn as sns
 import matplotlib.pyplot as plt
+import plotly.express as px
+import plotly.graph_objects as go
 
 st.title('Wedding Day Weather')
 
@@ -65,30 +67,156 @@ def show_score(local_dly, place, best_day_index,low_temp,high_temp):
     st.write('There is a %.1f percent probablity of rain on this date' % (local_dly.loc[best_day_index,'DLY-PRCP-PCTALL-GE005MM']))
 
     #display line chart
+def weather_score_chart(local_dly):
     st.subheader('Weather Score')
     st.write('The weather score is the probability that the high temp will be in your desired range and that there will be no precipitation on this date')
     local_plot = local_dly[local_dly['day']==1]
-    fig = plt.figure()
-    sns.lineplot(x=local_plot['mm-dd'],y=local_plot['prob_score']*100)
-    sns.despine()
-    plt.legend()
+    months = ['January','February','March', 'April', 'May', 'June','July','August','September','October','November','December']
+    #fig = plt.figure()
+    #sns.lineplot(x=local_plot['mm-dd'],y=local_plot['prob_score']*100)
+    #sns.despine()
+    #plt.legend()
+    #st.write(fig)
+
+    #simple plotly line plot
+    fig = px.line(local_plot, x=months, y="prob_score")
+    fig.update_layout(
+        margin=dict(l=1,r=1,b=1,t=1),
+        showlegend=False,
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)'
+    )
+    fig.update_xaxes(title_text='Month')
+    fig.update_yaxes(title_text='Weather Score')
     st.write(fig)
 
+
+def temp_chart(local_dly):
     st.subheader('Expected Temperature')
-    fig = plt.figure()
-    sns.lineplot(x=local_plot['mm-dd'],y=local_plot['DLY_TMAX_NORMAL'])
-    sns.lineplot(x=local_plot['mm-dd'],y=local_plot['DLY_TMIN_NORMAL'])
-    sns.despine()
-    plt.legend()
-    st.write(fig)
+    local_plot = local_dly[local_dly['day']==1]
+    #fig = plt.figure()
+    #sns.lineplot(x=local_plot['mm-dd'],y=local_plot['DLY_TMAX_NORMAL'])
+    #sns.lineplot(x=local_plot['mm-dd'],y=local_plot['DLY_TMIN_NORMAL'])
+    #sns.despine()
+    #plt.legend()
+    #st.write(fig)
 
+    #fancy plotly line plot
+    months = ['January','February','March', 'April', 'May', 'June','July','August','September','October','November','December']
+
+    fig_dly_temp=go.Figure([
+        go.Scatter(x=months, 
+                y=local_plot['DLY_TMAX_NORMAL'], 
+                mode='lines',
+                visible=True,
+                line_color='red',
+                name='High Temp'
+                ),
+        go.Scatter(x=months,
+                y=local_plot['DLY_TMAX_NORMAL']+local_plot['DLY-TMAX-STDDEV'],
+                mode='lines',
+                marker=dict(color="#444"),
+                line=dict(width=0),
+                showlegend=False,
+                name='Upper Bound'
+                ),
+        go.Scatter(x=months,
+                y=local_plot['DLY_TMAX_NORMAL']-local_plot['DLY-TMAX-STDDEV'],
+                marker=dict(color="#444"),
+                line=dict(width=0),
+                mode='lines',
+                fillcolor='rgba(70, 70, 70, 0.15)',
+                fill='tonexty',
+                showlegend=False,
+                name='Lower Bound'
+                ),
+        go.Scatter(x=months, 
+                y=local_plot['DLY_TMIN_NORMAL'], 
+                mode='lines',
+                visible=True, 
+                line_color='blue',
+                name='Low Temp'
+                ),
+        go.Scatter(x=months,
+                y=local_plot['DLY_TMIN_NORMAL']+local_plot['DLY-TMIN-STDDEV'],
+                mode='lines',
+                marker=dict(color="#444"),
+                line=dict(width=0),
+                showlegend=False,
+                name='Upper Bound'
+                ),
+        go.Scatter(x=months,
+                y=local_plot['DLY_TMIN_NORMAL']-local_plot['DLY-TMIN-STDDEV'],
+                marker=dict(color="#444"),
+                line=dict(width=0),
+                mode='lines',
+                fillcolor='rgba(68, 68, 68, 0.15)',
+                fill='tonexty',
+                showlegend=False,
+                name='Lower Bound'
+                )  
+    ])
+
+    fig_dly_temp.update_layout(
+        margin=dict(l=1,r=1,b=1,t=1),
+        legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)'
+    )
+    fig_dly_temp.update_xaxes(title_text='Month')
+    fig_dly_temp.update_yaxes(title_text='Temp (F)')
+
+    st.write(fig_dly_temp)
+
+
+def precip_chart(local_dly):
     st.subheader('Expected Precipitation')
+    local_plot = local_dly[local_dly['day']==1]
     fig = plt.figure()
-    sns.lineplot(x=local_plot['mm-dd'],y=local_plot['DLY-PRCP-PCTALL-GE005MM'])
-    sns.lineplot(x=local_plot['mm-dd'],y=local_plot['DLY_PRCP_PCTALL_GE050MM'])
-    sns.despine()
-    plt.legend()
-    st.write(fig)
+    #sns.lineplot(x=local_plot['mm-dd'],y=local_plot['DLY-PRCP-PCTALL-GE005MM'])
+    #sns.lineplot(x=local_plot['mm-dd'],y=local_plot['DLY_PRCP_PCTALL_GE050MM'])
+    #sns.despine()
+    #plt.legend()
+    #st.write(fig)
+
+    #fancy plotly line plot
+    months = ['January','February','March', 'April', 'May', 'June','July','August','September','October','November','December']
+
+    fig_precip=go.Figure([
+        go.Scatter(x=months,
+                y=local_plot['DLY_PRCP_PCTALL_GE001MM'],
+                mode='lines',
+                visible=True,
+                line_color='green',
+                name='Light Rain'
+                ),
+        go.Scatter(x=months, 
+                y=local_plot['DLY-PRCP-PCTALL-GE005MM'], 
+                mode='lines',
+                visible=True,
+                line_color='blue',
+                name='More Rain'
+                ),
+        go.Scatter(x=months,
+                y=local_plot['DLY_PRCP_PCTALL_GE050MM'],
+                mode='lines',
+                visible=True,
+                line_color='red',
+                name='Heavy Rain'
+                ),
+    ])
+
+    fig_precip.update_layout(
+        margin=dict(l=1,r=1,b=1,t=1),
+        legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)'
+    )
+    fig_precip.update_xaxes(title_text='Month')
+    fig_precip.update_yaxes(title_text='% Chance of Rain')
+
+    st.write(fig_precip)
+
 
 ## input form
 with st.form("my_form"):
@@ -101,11 +229,15 @@ with st.form("my_form"):
      
     # Every form must have a submit button.
     submitted = st.form_submit_button("Submit")
-    if submitted:
-        lat, long, place = get_location_info(user_input_zip)
-        nearest_station = get_nearest_station(inventory,lat,long)
-        local_dly, best_day_index = get_weather_score(dly, nearest_station,low_temp,high_temp)
-        show_score(local_dly, place, best_day_index,low_temp,high_temp)
+    
+if submitted:
+    lat, long, place = get_location_info(user_input_zip)
+    nearest_station = get_nearest_station(inventory,lat,long)
+    local_dly, best_day_index = get_weather_score(dly, nearest_station,low_temp,high_temp)
+    show_score(local_dly, place, best_day_index,low_temp,high_temp)
+    weather_score_chart(local_dly)
+    temp_chart(local_dly)
+    precip_chart(local_dly)
 
 
 
