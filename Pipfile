@@ -5,6 +5,10 @@ name = "pypi"
 
 [packages]
 streamlit = "*"
+plotly = "*"
+scipy = "*"
+seaborn = "*"
+pgeocode = "*"
 
 [dev-packages]
 
