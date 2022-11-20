@@ -9,6 +9,9 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 import plotly.graph_objects as go
 
+with open('style.css') as f:
+    st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
 st.title('Wedding Day Weather')
 
 #load data
@@ -61,10 +64,21 @@ def get_weather_score(dly, nearest_station,low_temp,high_temp):
 
 ## display score details for selected location
 def show_score(local_dly, place, best_day_index,low_temp,high_temp):
-    st.write('The best date for a wedding in %s is %s' % (place, local_dly.loc[best_day_index,'mm-dd']))
-    st.write('There is a %.1f percent probablity of a high temp in your desired range and no precipitation on this date' % (local_dly.loc[best_day_index,'prob_score']*100))
-    st.write('There is a %.1f percent probablity of a high temperate in your desired range on this date' % (local_dly.loc[best_day_index,'temp_prob_score']*100))
-    st.write('There is a %.1f percent probablity of rain on this date' % (local_dly.loc[best_day_index,'DLY-PRCP-PCTALL-GE005MM']))
+    #new format for displaying score 7-23-22
+    months = ['January','February','March', 'April', 'May', 'June','July','August','September','October','November','December']
+    best_month=local_dly.loc[best_day_index,'month']
+    best_date = local_dly.loc[best_day_index,'day']
+    st.metric('Your Perfect Wedding Weather Date in %s is...' % (place),  "%s %s" % (months[best_month-1], best_date))
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Weather Score", "%.0f" % (local_dly.loc[best_day_index,'prob_score']*100), delta='Good')#, help='The weather score is the percent probablity of a high temp in your desired range and no precipitation on this date')
+    col2.metric("Expected High Temperature", "%.0f °F" % (local_dly.loc[best_day_index,'DLY_TMAX_NORMAL']), delta='+/- %.0f °F' % (local_dly.loc[best_day_index,'DLY-TMAX-STDDEV']))
+    col3.metric("Chance of Precipitation", "%.0f%%" % (local_dly.loc[best_day_index,'DLY-PRCP-PCTALL-GE005MM']))
+
+    #old format
+    #st.write('The best date for a wedding in %s is %s' % (place, local_dly.loc[best_day_index,'mm-dd']))
+    #st.write('There is a %.1f percent probablity of a high temp in your desired range and no precipitation on this date' % (local_dly.loc[best_day_index,'prob_score']*100))
+    #st.write('There is a %.1f percent probablity of a high temperate in your desired range on this date' % (local_dly.loc[best_day_index,'temp_prob_score']*100))
+    #st.write('There is a %.1f percent probablity of rain on this date' % (local_dly.loc[best_day_index,'DLY-PRCP-PCTALL-GE005MM']))
 
     #display line chart
 def weather_score_chart(local_dly):
